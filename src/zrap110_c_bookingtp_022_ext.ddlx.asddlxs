@@ -1,0 +1,70 @@
+@Metadata.layer: #CUSTOMER
+
+@UI.headerInfo: { typeName: 'Booking',
+                  typeNamePlural: 'Bookings',
+                  title: { type: #STANDARD, label: 'Booking', value: 'BookingID' } }
+
+@UI.presentationVariant: [ { sortOrder: [ { by: 'TravelID', direction: #DESC } ],
+                             visualizations: [ { type: #AS_LINEITEM } ] } ]
+
+annotate view ZRAP110_C_BOOKINGTP_022 with
+
+{
+  @UI.facet: [ { id: 'idBooking',
+                 purpose: #STANDARD,
+                 type: #IDENTIFICATION_REFERENCE,
+                 label: 'Booking',
+                 position: 10 } ]
+  @UI.identification: [ { position: 10 } ]
+  @UI.lineItem: [ { position: 10, importance: #HIGH } ]
+  @UI.selectionField: [ { position: 10 } ]
+  TravelID;
+
+  @UI.identification: [ { position: 20 } ]
+  @UI.lineItem: [ { position: 20, importance: #HIGH } ]
+  BookingID;
+
+  @UI.identification: [ { position: 30 } ]
+  @UI.lineItem: [ { position: 30, importance: #HIGH } ]
+  BookingDate;
+
+  @UI.identification: [ { position: 40 } ]
+  @UI.lineItem: [ { position: 40, importance: #HIGH } ]
+  @UI.selectionField: [ { position: 40 } ]
+  @UI.textArrangement: #TEXT_FIRST
+  CustomerID;
+
+  @UI.identification: [ { position: 50 } ]
+  @UI.lineItem: [ { position: 50, importance: #HIGH } ]
+  CarrierID;
+
+  @UI.identification: [ { position: 60 } ]
+  @UI.lineItem: [ { position: 60, importance: #HIGH } ]
+  ConnectionID;
+
+  @UI.identification: [ { position: 70 } ]
+  @UI.lineItem: [ { position: 70, importance: #HIGH } ]
+  FlightDate;
+
+  @UI.identification: [ { position: 80, criticality: 'BookingStatusIndicator' } ]
+  @UI.lineItem: [ { position: 80, importance: #HIGH, criticality: 'BookingStatusIndicator' } ]
+  @UI.textArrangement: #TEXT_ONLY
+  BookingStatus;
+
+  @UI.dataPoint: { title: 'Remaining days to flight',
+                   criticality: 'DaysToFlightIndicator',
+                   targetValue: #(InitialDaysToFlight),
+                   visualization: #PROGRESS }
+  @UI.identification: [ { type: #AS_DATAPOINT, position: 100 } ]
+  @UI.lineItem: [ { type: #AS_DATAPOINT, position: 100, importance: #HIGH } ]
+  RemainingDaysToFlight;
+                   
+
+  @UI.identification: [ { position: 90 } ]
+  @UI.lineItem: [ { position: 90, importance: #HIGH } ]
+  FlightPrice;
+
+
+  @UI.hidden: true
+  LocalLastChangedAt;
+}
