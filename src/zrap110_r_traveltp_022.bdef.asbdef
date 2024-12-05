@@ -25,6 +25,14 @@ late numbering
   update ( features : instance );
   delete ( features : instance );
 
+  //side effects
+  side effects
+  {
+    field BookingFee affects field TotalPrice;
+    field CurrencyCode affects field TotalPrice;
+    determine action checkDates executed on field BeginDate, field EndDate affects messages;
+  }
+
   //actions
   action ( features : instance ) acceptTravel result [1] $self;
   action ( features : instance ) rejectTravel result [1] $self;
@@ -96,6 +104,13 @@ late numbering
 
   field ( readonly ) BookingID;
   field ( mandatory ) CustomerID, CarrierID, FlightDate, BookingStatus;
+
+  side effects
+  {
+    field FlightPrice affects field _Travel.TotalPrice;
+    field CurrencyCode affects field _Travel.TotalPrice;
+  }
+
 
   //validation(s)
   validation validateBookingStatus on save { create; field BookingStatus; }

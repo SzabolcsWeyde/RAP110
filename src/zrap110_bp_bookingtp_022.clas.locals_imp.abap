@@ -29,22 +29,48 @@ CLASS lhc_booking IMPLEMENTATION.
 
   METHOD getDaysToFlight.
 
+    DATA bookings_result  TYPE TABLE FOR FUNCTION RESULT zrap110_r_traveltp_022\\booking~getdaystoflight.
+    DATA c_booking_entity TYPE ZRAP110_C_BookingTP_022.
+    DATA booking_result   LIKE LINE OF bookings_result.
+
+    READ ENTITIES OF zrap110_r_traveltp_022
+         ENTITY booking
+         FIELDS ( TravelID BookingStatus BookingID FlightDate BookingDate )
+         WITH CORRESPONDING #( keys )
+         RESULT DATA(bookings).
+
+    LOOP AT bookings ASSIGNING FIELD-SYMBOL(<booking>).
+      c_booking_entity = CORRESPONDING #( <booking> ).
+
+      booking_result = CORRESPONDING #( <booking> ).
+
+      booking_result-%param = CORRESPONDING #( zrap110_calc_book_elem_022=>calculate_days_to_flight( c_booking_entity )
+                                              MAPPING
+                                                      initial_days_to_flight   = InitialDaysToFlight
+                                                      remaining_days_to_flight = RemainingDaysToFlight
+                                                      booking_status_indicator = BookingStatusIndicator
+                                                      days_to_flight_indicator = DaysToFlightIndicator ).
+     APPEND booking_result to bookings_result.
+    ENDLOOP.
+
+    result = bookings_result.
+
   ENDMETHOD.
 
 
   METHOD calculateTotalPrice.
-     " Read all parent IDs
+    " Read all parent IDs
     READ ENTITIES OF ZRAP110_R_TravelTP_022 IN LOCAL MODE
-      ENTITY Booking BY \_Travel
-        FIELDS ( TravelID  )
-        WITH CORRESPONDING #(  keys  )
-      RESULT DATA(travels).
+         ENTITY Booking BY \_Travel
+         FIELDS ( TravelID  )
+         WITH CORRESPONDING #( keys )
+         RESULT DATA(travels).
 
     " Trigger Re-Calculation on Root Node
     MODIFY ENTITIES OF ZRAP110_R_TravelTP_022 IN LOCAL MODE
-      ENTITY Travel
-        EXECUTE recalTotalPrice
-          FROM CORRESPONDING  #( travels ).
+           ENTITY Travel
+           EXECUTE recalTotalPrice
+           FROM CORRESPONDING #( travels ).
   ENDMETHOD.
 
 
