@@ -317,6 +317,41 @@ CLASS lhc_travel IMPLEMENTATION.
 
 
   METHOD get_instance_features.
+
+
+    " read relevant travel instance data
+    READ ENTITIES OF ZRAP110_R_TravelTP_022 IN LOCAL MODE
+         ENTITY travel
+         FIELDS ( TravelID OverallStatus )
+         WITH CORRESPONDING #( keys )
+         RESULT DATA(travels)
+         FAILED failed.
+
+    " evaluate the conditions, set the operation state, and set result parameter
+    result = VALUE #(
+        FOR travel IN travels
+        ( %tky                 = travel-%tky
+
+          %features-%update    = COND #( WHEN travel-OverallStatus = travel_status-accepted
+                                         THEN if_abap_behv=>fc-o-disabled
+                                         ELSE if_abap_behv=>fc-o-enabled   )
+
+          %features-%delete    = COND #( WHEN travel-OverallStatus = travel_status-open
+                                         THEN if_abap_behv=>fc-o-enabled
+                                         ELSE if_abap_behv=>fc-o-disabled   )
+
+          %action-Edit         = COND #( WHEN travel-OverallStatus = travel_status-accepted
+                                         THEN if_abap_behv=>fc-o-disabled
+                                         ELSE if_abap_behv=>fc-o-enabled   )
+
+          %action-acceptTravel = COND #( WHEN travel-OverallStatus = travel_status-accepted
+                                         THEN if_abap_behv=>fc-o-disabled
+                                         ELSE if_abap_behv=>fc-o-enabled   )
+
+          %action-rejectTravel = COND #( WHEN travel-OverallStatus = travel_status-rejected
+                                         THEN if_abap_behv=>fc-o-disabled
+                                         ELSE if_abap_behv=>fc-o-enabled   ) ) ).
+
   ENDMETHOD.
 
 
