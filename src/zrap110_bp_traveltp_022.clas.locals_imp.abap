@@ -2,6 +2,14 @@ CLASS lsc_zrap110_r_traveltp_022 DEFINITION INHERITING FROM cl_abap_behavior_sav
 
   PROTECTED SECTION.
     METHODS adjust_numbers REDEFINITION.
+    METHODS save_modified  REDEFINITION.
+
+    CONSTANTS:
+      BEGIN OF travel_status,
+        open     TYPE c LENGTH 1 VALUE 'O', " Open
+        accepted TYPE c LENGTH 1 VALUE 'A', " Accepted
+        rejected TYPE c LENGTH 1 VALUE 'X', " Rejected
+      END OF travel_status.
 
 ENDCLASS.
 
@@ -59,6 +67,40 @@ CLASS lsc_zrap110_r_traveltp_022 IMPLEMENTATION.
         ENDLOOP.
       ENDLOOP.
     ENDIF.
+  ENDMETHOD.
+
+
+  METHOD save_modified.
+
+    IF update IS NOT INITIAL.
+
+      " raise event
+      RAISE ENTITY EVENT ZRAP110_R_TravelTP_022~travel_accepted
+            FROM VALUE #( FOR travel IN update-travel
+                          WHERE ( %control-OverallStatus = if_abap_behv=>mk-on AND
+                                  OverallStatus          = travel_status-accepted )
+                          " transferred information
+                          ( %key           = travel-%key
+                            travel_id      = travel-TravelID
+                            agency_id      = travel-AgencyID
+                            customer_id    = travel-CustomerID
+                            overall_status = travel-OverallStatus
+                            description    = travel-Description
+                            total_price    = travel-TotalPrice
+                            currency_code  = travel-CurrencyCode
+                            begin_date     = travel-BeginDate
+                            end_date       = travel-EndDate ) ).
+
+      " raise event
+      RAISE ENTITY EVENT ZRAP110_R_TravelTP_022~travel_rejected
+            FROM VALUE #( FOR travel IN update-travel
+                          WHERE ( %control-OverallStatus = if_abap_behv=>mk-on AND
+                                  OverallStatus          = travel_status-rejected )
+                          " transferred information
+                          ( %key = travel-%key ) ).
+
+    ENDIF.
+
   ENDMETHOD.
 
 

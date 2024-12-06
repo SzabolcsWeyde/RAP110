@@ -8,6 +8,7 @@ draft table zrap110_dtrav022
 etag master LocalLastChangedAt
 lock master total etag LastChangedAt
 authorization master ( global )
+with additional save with full data
 late numbering
 
 {
@@ -32,6 +33,10 @@ late numbering
     field CurrencyCode affects field TotalPrice;
     determine action checkDates executed on field BeginDate, field EndDate affects messages;
   }
+
+  //business events
+  event travel_accepted parameter ZRAP110_A_Travel_022;
+  event travel_rejected;
 
   //actions
   action ( features : instance ) acceptTravel result [1] $self;
